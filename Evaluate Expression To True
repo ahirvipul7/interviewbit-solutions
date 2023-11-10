@@ -1,0 +1,55 @@
+int mod=1e3+3;
+
+int f(string &exp,int i,int j,int need,vector<vector<vector<long long>>>&dp){
+
+    if(i>j){
+        return 0;
+    }
+    if(i==j){
+        if(need){
+            return exp[i]=='T';
+        }
+        return exp[i]=='F';
+    }
+
+    if(dp[i][j][need]!=-1){
+        return dp[i][j][need];
+    }
+
+    long long temp=0;
+    for(int k=i+1;k<j;k+=2){
+        long long lf=f(exp,i,k-1,0,dp),rf=f(exp,k+1,j,0,dp),lt=f(exp,i,k-1,1,dp),rt=f(exp,k+1,j,1,dp);
+        if(exp[k]=='|'){
+            if(need){
+                temp+=((lt*rt)%mod + (lf*rt)%mod + (lt*rf)%mod)%mod;
+            }
+            else{
+                temp+=(lf*rf)%mod;
+            }
+        }
+        else if(exp[k]=='&'){
+            if(need){
+                temp+=(lt*rt)%mod;
+            }
+            else{
+                temp+=((lf*rf)%mod + (lf*rt)%mod + (lt*rf)%mod)%mod;
+            }
+        }
+        else{
+            if(need){
+                temp+=((lt*rf)%mod + (lf*rt)%mod)%mod;
+            }
+            else{
+                temp+=((lt*rt)%mod + (lf*rf)%mod)%mod;
+            }
+        }
+    }
+    return dp[i][j][need]=temp%mod;
+}
+
+int Solution::cnttrue(string exp) {
+    int n=exp.size();
+    vector<vector<vector<long long>>> dp(n,vector<vector<long long>>(n,vector<long long>(2,-1)));
+
+    return f(exp,0,n-1,1,dp);
+}
